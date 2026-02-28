@@ -23,7 +23,9 @@ function App() {
 
   return (
     <div style={{ padding: '50px', textAlign: 'center', backgroundColor: '#282c34', minHeight: '100vh', color: 'white' }}>
-      <h1>Мій Калькулятор 🧮 версія A</h1>
+
+      <h1>Мій Калькулятор 🧮 ВЕРСІЯ В</h1>
+
 
       <input type="number" value={num1} onChange={(e) => setNum1(e.target.value)} />
       <span style={{ fontSize: '24px' }}> + </span>
