@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('відображається заголовок калькулятора', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByText(/мій калькулятор/i)).toBeInTheDocument();
+});
+
+test('відображаються кнопки операцій', () => {
+  render(<App />);
+  expect(screen.getByRole('button', { name: '+' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '-' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '*' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '/' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '%' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'C' })).toBeInTheDocument();
 });
