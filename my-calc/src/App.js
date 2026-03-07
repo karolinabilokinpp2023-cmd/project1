@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   requireTwoNumbers,
   requireOneNumber,
@@ -65,6 +65,7 @@ function App() {
       }}
     >
       <h1>Мій Калькулятор 🧮</h1>
+      <p>Mode: {process.env.REACT_APP_STATUS}</p>
 
       <div style={{ marginBottom: '16px' }}>
         <input
