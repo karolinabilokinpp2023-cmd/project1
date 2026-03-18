@@ -1,4 +1,18 @@
-# Job для збірки та тестування
+name: CI/CD Pipeline
+
+# Тригери для запуску пайплайну
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # Job для збірки та тестування
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
