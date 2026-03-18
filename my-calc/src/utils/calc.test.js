@@ -21,7 +21,7 @@ test('requireTwoNumbers: якщо одне з чисел порожнє — по
 });
 
 test('add: 2 + 3 = 5', () => {
-  expect(add(2, 3)).toBe(10);
+  expect(add(2, 3)).toBe(5);
 });
 
 test('subtract: 10 - 4 = 6', () => {
