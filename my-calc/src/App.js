@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import posthog from 'posthog-js';
 import {
   requireTwoNumbers,
   requireOneNumber,
@@ -9,12 +10,27 @@ import {
   percent,
 } from './utils/calc';
 
+// Ініціалізація PostHog (дані з твого скриншота)
+posthog.init('phc_YjbLCVOCBzzlTtlcPsgue9RQFxnhhQDWtgDBTMVqFS4', {
+  api_host: 'https://us.posthog.com', 
+  person_profiles: 'always'
+});
+
 function App() {
   const [num1, setNum1] = useState('');
   const [num2, setNum2] = useState('');
   const [result, setResult] = useState(0);
 
+  // Функція для запису події обчислення
+  const captureCalc = (operationName) => {
+    posthog.capture('calculation_performed', {
+      operation: operationName,
+      interface_language: 'ua'
+    });
+  };
+
   const handleClear = () => {
+    posthog.capture('calculator_clear'); // Відстежуємо очищення
     setNum1('');
     setNum2('');
     setResult(0);
@@ -23,18 +39,21 @@ function App() {
   const handleAdd = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
+    captureCalc('add'); // Крок 2: Кастомна подія
     setResult(add(r.a, r.b));
   };
 
   const handleSubtract = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
+    captureCalc('subtract');
     setResult(subtract(r.a, r.b));
   };
 
   const handleMultiply = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
+    captureCalc('multiply');
     setResult(multiply(r.a, r.b));
   };
 
@@ -45,12 +64,14 @@ function App() {
     const d = divide(r.a, r.b);
     if (!d.ok) return setResult(d.error);
 
+    captureCalc('divide');
     setResult(d.value);
   };
 
   const handlePercent = () => {
     const r = requireOneNumber(num1);
     if (!r.ok) return setResult(r.error);
+    captureCalc('percent');
     setResult(percent(r.a));
   };
 
