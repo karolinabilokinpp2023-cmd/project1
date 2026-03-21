@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js'; // Крок 1: Імпорт бібліотеки аналітики PostHog 
 import {
   requireTwoNumbers,
   requireOneNumber,
@@ -10,10 +10,10 @@ import {
   percent,
 } from './utils/calc';
 
-// Ініціалізація PostHog (дані з твого скриншота)
+// Крок 1: Ініціалізація PostHog (підключення до проєкту через API Key) 
 posthog.init('phc_YjbLCVOCBzzlTtlcPsgue9RQFxnhhQDWtgDBTMVqFS4', {
-  api_host: 'https://us.posthog.com', 
-  person_profiles: 'always'
+  api_host: 'https://us.i.posthog.com', // Адреса сервера для відправки даних 
+  person_profiles: 'always' // Дозволяє створювати профілі користувачів для аналізу сесій 
 });
 
 function App() {
@@ -21,7 +21,8 @@ function App() {
   const [num2, setNum2] = useState('');
   const [result, setResult] = useState(0);
 
-  // Функція для запису події обчислення
+  // Крок 2: Функція для запису кастомної події обчислення (calculation_performed) 
+  // Ми передаємо тип операції як властивість (property), щоб бачити статистику по кожній кнопці 
   const captureCalc = (operationName) => {
     posthog.capture('calculation_performed', {
       operation: operationName,
@@ -30,7 +31,8 @@ function App() {
   };
 
   const handleClear = () => {
-    posthog.capture('calculator_clear'); // Відстежуємо очищення
+    // Крок 2: Відстежуємо очищення калькулятора користувачем
+    posthog.capture('calculator_clear'); 
     setNum1('');
     setNum2('');
     setResult(0);
@@ -39,13 +41,17 @@ function App() {
   const handleAdd = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
-    captureCalc('add'); // Крок 2: Кастомна подія
+    
+    // Крок 2: Фіксуємо успішне виконання операції додавання
+    captureCalc('add'); 
     setResult(add(r.a, r.b));
   };
 
   const handleSubtract = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
+    
+    // Крок 2: Фіксуємо операцію віднімання
     captureCalc('subtract');
     setResult(subtract(r.a, r.b));
   };
@@ -53,6 +59,8 @@ function App() {
   const handleMultiply = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
+    
+    // Крок 2: Фіксуємо операцію множення
     captureCalc('multiply');
     setResult(multiply(r.a, r.b));
   };
@@ -64,6 +72,7 @@ function App() {
     const d = divide(r.a, r.b);
     if (!d.ok) return setResult(d.error);
 
+    // Крок 2: Фіксуємо операцію ділення
     captureCalc('divide');
     setResult(d.value);
   };
@@ -71,6 +80,8 @@ function App() {
   const handlePercent = () => {
     const r = requireOneNumber(num1);
     if (!r.ok) return setResult(r.error);
+    
+    // Крок 2: Фіксуємо обчислення відсотків
     captureCalc('percent');
     setResult(percent(r.a));
   };
