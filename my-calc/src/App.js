@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import posthog from 'posthog-js'; // Крок 1: Імпорт бібліотеки аналітики PostHog 
+import { useFeatureFlagEnabled } from 'posthog-js/react'; // Крок 5: Імпорт хука для роботи з Feature Flags
 import {
   requireTwoNumbers,
   requireOneNumber,
@@ -21,8 +22,12 @@ function App() {
   const [num2, setNum2] = useState('');
   const [result, setResult] = useState(0);
 
+  // Крок 5: Перевірка активності прапорця "show-c-button" з панелі PostHog
+  // Ця змінна отримує значення true або false дистанційно з адмінки
+  const isClearButtonVisible = useFeatureFlagEnabled('show-c-button');
+
   // Крок 2: Функція для запису кастомної події обчислення (calculation_performed) 
-  // Ми передаємо тип операції як властивість (property), щоб бачити статистику по кожній кнопці 
+  // Передаємо тип операції як властивість (property), щоб бачити статистику по кожній кнопці 
   const captureCalc = (operationName) => {
     posthog.capture('calculation_performed', {
       operation: operationName,
@@ -118,29 +123,20 @@ function App() {
       </div>
 
       <div style={{ marginTop: '20px' }}>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleAdd}>
-          +
-        </button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleAdd}>+</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleSubtract}>-</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleMultiply}>*</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleDivide}>/</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handlePercent}>%</button>
 
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleSubtract}>
-          -
-        </button>
-
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleMultiply}>
-          *
-        </button>
-
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleDivide}>
-          /
-        </button>
-
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handlePercent}>
-          %
-        </button>
-
-        <button style={{ backgroundColor: 'orange' }} onClick={handleClear}>
-          C
-        </button>
+        {/* Крок 5: Реалізація "Магії" Feature Flags. 
+            Кнопка "C" відображається лише тоді, коли прапорець show-c-button увімкнено в PostHog.
+            Це дозволяє керувати інтерфейсом без переписування коду. */}
+        {isClearButtonVisible && (
+          <button style={{ backgroundColor: 'orange' }} onClick={handleClear}>
+            C
+          </button>
+        )}
       </div>
 
       <h2 style={{ marginTop: '20px' }}>Результат: {result}</h2>
