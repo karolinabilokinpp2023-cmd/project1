@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import posthog from 'posthog-js'; // Крок 1: Імпорт бібліотеки аналітики PostHog
-import { useFeatureFlagEnabled } from 'posthog-js/react'; // Крок 5: Імпорт хука для роботи з Feature Flags
+import posthog from 'posthog-js'; 
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 
-// --- ЛАБА 6: КРОК 1 (Імпорт SDK Sentry для відстеження помилок)  ---
+// --- ЛАБОРАТОРНА РОБОТА №6: ВІДСТЕЖЕННЯ ПОМИЛОК ---
 import * as Sentry from "@sentry/react";
 
 import {
@@ -15,35 +15,29 @@ import {
   percent,
 } from './utils/calc';
 
-// Крок 1: Ініціалізація PostHog (підключення до проєкту через API Key)
-posthog.init('phc_YjbLCVOCBzzlTtlcPsgue9RQFxnhhQDWtgDBTMVqFS4', {
-  api_host: 'https://us.i.posthog.com', // Адреса сервера для відправки даних
-  person_profiles: 'always' // Дозволяє створювати профілі користувачів для аналізу сесій
-});
-
 function App() {
   const [num1, setNum1] = useState('');
   const [num2, setNum2] = useState('');
   const [result, setResult] = useState(0);
 
-  // Крок 5: Перевірка активності прапорця "show-c-button" з панелі PostHog
-  // Ця змінна отримує значення true або false дистанційно з адмінки
+  // --- ЛАБОРАТОРНА РОБОТА №5: FEATURE FLAGS ---
+  // Перевірка прапорця "show-c-button" з панелі PostHog
   const isClearButtonVisible = useFeatureFlagEnabled('show-c-button');
 
-  // --- ЛАБА 6: КРОК 2 (Функція для навмисного виклику помилки)  ---
+  // --- ЛАБОРАТОРНА РОБОТА №6: ШТУЧНА ПОМИЛКА ---
   const handleBreakWorld = () => {
-    // ЛАБА 6: КРОК 1.3 (Додаємо Breadcrumb для контексту налагодження) 
+    // Додаємо Breadcrumb для Sentry, щоб бачити шлях користувача до помилки
     Sentry.addBreadcrumb({
       category: 'ui',
-      message: 'User clicked Break the World button to test Sentry',
+      message: 'User clicked Break the World button',
       level: 'info',
     });
 
+    // Генеруємо помилку для перевірки моніторингу
     throw new Error("Sentry Test Error: " + (num1 || "No values") + " caused a crash!"); 
   };
 
-  // Крок 2: Функція для запису кастомної події обчислення (calculation_performed)
-  // Передаємо тип операції як властивість (property), щоб бачити статистику по кожній кнопці 
+  // --- ЛАБОРАТОРНА РОБОТА №5: ТРЕКІНГ ПОДІЙ ---
   const captureCalc = (operationName) => {
     posthog.capture('calculation_performed', {
       operation: operationName,
@@ -52,7 +46,6 @@ function App() {
   };
 
   const handleClear = () => {
-    // Крок 2: Відстежуємо очищення калькулятора користувачем
     posthog.capture('calculator_clear'); 
     setNum1('');
     setNum2('');
@@ -62,8 +55,6 @@ function App() {
   const handleAdd = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
-    
-    // Крок 2: Фіксуємо успішне виконання операції додавання
     captureCalc('add'); 
     setResult(add(r.a, r.b));
   };
@@ -71,8 +62,6 @@ function App() {
   const handleSubtract = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
-    
-    // Крок 2: Фіксуємо операцію віднімання
     captureCalc('subtract');
     setResult(subtract(r.a, r.b));
   };
@@ -80,8 +69,6 @@ function App() {
   const handleMultiply = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
-    
-    // Крок 2: Фіксуємо операцію множення
     captureCalc('multiply');
     setResult(multiply(r.a, r.b));
   };
@@ -89,11 +76,8 @@ function App() {
   const handleDivide = () => {
     const r = requireTwoNumbers(num1, num2);
     if (!r.ok) return setResult(r.error);
-
     const d = divide(r.a, r.b);
     if (!d.ok) return setResult(d.error);
-
-    // Крок 2: Фіксуємо операцію ділення
     captureCalc('divide');
     setResult(d.value);
   };
@@ -101,8 +85,6 @@ function App() {
   const handlePercent = () => {
     const r = requireOneNumber(num1);
     if (!r.ok) return setResult(r.error);
-    
-    // Крок 2: Фіксуємо обчислення відсотків
     captureCalc('percent');
     setResult(percent(r.a));
   };
@@ -139,23 +121,20 @@ function App() {
       </div>
 
       <div style={{ marginTop: '20px' }}>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleAdd}>+</button>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleSubtract}>-</button>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleMultiply}>*</button>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handleDivide}>/</button>
-        <button style={{ backgroundColor: 'orange', marginRight: '10px' }} onClick={handlePercent}>%</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px', cursor: 'pointer' }} onClick={handleAdd}>+</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px', cursor: 'pointer' }} onClick={handleSubtract}>-</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px', cursor: 'pointer' }} onClick={handleMultiply}>*</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px', cursor: 'pointer' }} onClick={handleDivide}>/</button>
+        <button style={{ backgroundColor: 'orange', marginRight: '10px', cursor: 'pointer' }} onClick={handlePercent}>%</button>
 
-        {/* Крок 5: Реалізація "Магії" Feature Flags.
-            Кнопка "C" відображається лише тоді, коли прапорець show-c-button увімкнено в PostHog.
-            Це дозволяє керувати інтерфейсом без переписування коду. */}
-        {isClearButtonVisible && (
-          <button style={{ backgroundColor: 'orange' }} onClick={handleClear}>
+        {/* Кнопка "C" з'являється тільки якщо Feature Flag увімкнено в PostHog */}
+        {isClearButtonVisible === true && (
+          <button style={{ backgroundColor: 'orange', cursor: 'pointer' }} onClick={handleClear}>
             C
           </button>
         )}
       </div>
 
-      {/* --- ЛАБА 6: КРОК 2 (Кнопка "Break the world" для симуляції помилок) --- */}
       <div style={{ marginTop: '30px' }}>
         <button 
           style={{ backgroundColor: 'red', color: 'white', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer' }} 
